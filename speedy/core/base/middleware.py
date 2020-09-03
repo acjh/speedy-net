@@ -9,6 +9,7 @@ from django.http.response import HttpResponseBase
 from django.urls import NoReverseMatch
 from django.urls import reverse
 from django.utils import translation
+from django.utils.crypto import salted_hmac
 
 from speedy.core.blocks import managers as block_managers
 
@@ -142,7 +143,7 @@ class EnsureCachesMiddleware(object):
 
 class UpdateSessionAuthHashMiddleware(object):
     """
-    Update session auth hash from Django 3.0.x to 3.1.1.
+    Update session auth hash from Django 3.0.x to 3.1.1 or back.
     """
 
     def __init__(self, get_response):
@@ -171,6 +172,12 @@ class UpdateSessionAuthHashMiddleware(object):
                         user.get_session_auth_hash()
                     )
                     if not session_hash_verified:
+                        if session_hash and django_settings.DEFAULT_HASHING_ALGORITHM == 'sha1':
+                            key_salt = 'django.contrib.auth.models.AbstractBaseUser.get_session_auth_hash'
+                            sha256_hash = salted_hmac(key_salt, user.password, algorithm='sha256').hexdigest()
+                            # Update the session auth hash to sha1
+                            if auth.constant_time_compare(session_hash, sha256_hash):
+                                request.session[auth.HASH_SESSION_KEY] = user.get_session_auth_hash()
                         if not (
                             session_hash and
                             hasattr(user, '_legacy_get_session_auth_hash') and
