@@ -158,7 +158,9 @@ class UpdateSessionAuthHashMiddleware(object):
         try:
             user_id = auth._get_user_session_key(request)
             backend_path = request.session[auth.BACKEND_SESSION_KEY]
-        except KeyError:
+        except KeyError as ex:
+            print('update_session_auth_hash_if_needed exception: {}'.format(ex))
+            print('request.session is_empty: {}'.format(request.session.is_empty()))
             pass
         else:
             if backend_path in auth.settings.AUTHENTICATION_BACKENDS:
@@ -175,6 +177,8 @@ class UpdateSessionAuthHashMiddleware(object):
                         if session_hash and django_settings.DEFAULT_HASHING_ALGORITHM == 'sha1':
                             key_salt = 'django.contrib.auth.models.AbstractBaseUser.get_session_auth_hash'
                             sha256_hash = salted_hmac(key_salt, user.password, algorithm='sha256').hexdigest()
+                            import pdb
+                            pdb.set_trace()
                             # Update the session auth hash to sha1
                             if auth.constant_time_compare(session_hash, sha256_hash):
                                 request.session[auth.HASH_SESSION_KEY] = user.get_session_auth_hash()
@@ -185,5 +189,7 @@ class UpdateSessionAuthHashMiddleware(object):
                         ):
                             pass
                         else:
+                            import pdb
+                            pdb.set_trace()
                             # Update the session auth hash
                             request.session[auth.HASH_SESSION_KEY] = user.get_session_auth_hash()
