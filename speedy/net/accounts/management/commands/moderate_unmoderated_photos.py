@@ -2,6 +2,7 @@ import logging
 import boto3
 from datetime import timedelta
 from PIL import Image
+from sorl.thumbnail import get_thumbnail
 
 from django.core.management import BaseCommand
 from django.utils.timezone import now
@@ -39,8 +40,8 @@ class Command(BaseCommand):
                                 photo_is_valid = True
                     if (photo_is_valid):
                         client = boto3.client('rekognition')
-                        with open(user.photo.file.path, 'rb') as _image:  # open the image of width 640px
-                            image.aws_raw_image_moderation_results = client.detect_moderation_labels(Image={'Bytes': _image.read()})
+                        thumbnail = get_thumbnail(image.file, '640', crop='center 20%')  # Open the image of width 640px from profile_picture_test_640.html
+                        image.aws_raw_image_moderation_results = client.detect_moderation_labels(Image={'Bytes': thumbnail.read()})
                         for label in image.aws_raw_image_moderation_results["ModerationLabels"]:
                             if (label["Name"] in ["Explicit Nudity", "Sexual Activity", "Graphic Male Nudity", "Graphic Female Nudity", "Barechested Male"]):
                                 labels_detected = True
