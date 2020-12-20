@@ -245,6 +245,10 @@ def validate_profile_picture_for_user(user, profile_picture, test_new_profile_pi
             with Image.open(user.photo.file) as image:
                 if (getattr(image, "is_animated", False)):
                     photo_is_valid = False
+                    photo_is_invalid_reason = _("You can't use this format for your profile picture. Only JPEG or PNG formats are accepted.")
+                elif (is_transparent(image)):
+                    photo_is_valid = False
+                    photo_is_invalid_reason = _("Please upload a nontransparent image.")
                 else:
                     photo_is_valid = True
     except Exception as e:
