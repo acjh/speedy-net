@@ -27,7 +27,7 @@ class Command(BaseCommand):
             if (len(user.speedy_match_profile.active_languages) > 0):
                 image = user.photo
                 if ((image.visible_on_website) and (image.aws_facial_analysis_time is None) and (image.date_created <= (now() - timedelta(minutes=5)))):
-                    photo_is_valid = False
+                    photo_is_valid = None
                     faces_detected = 0
                     try:
                         profile_picture_html = render_to_string(template_name="accounts/tests/profile_picture_test_640.html", context={"user": user})
@@ -64,6 +64,10 @@ class Command(BaseCommand):
                                 user=user,
                                 registered_days_ago=(now() - user.date_created).days,
                             ))
+                            image.aws_facial_analysis_time = now()
+                            image.save()
+                        elif (photo_is_valid is False):
+                            image.visible_on_website = False
                             image.aws_facial_analysis_time = now()
                             image.save()
 
