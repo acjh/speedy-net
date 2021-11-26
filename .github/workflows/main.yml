@@ -31,43 +31,5 @@ jobs:
         ports:
           - 5432:5432
     steps:
-      - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - name: Check out repository code
-        uses: actions/checkout@v2
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: List files in the repository
-        run: |
-          ls ${{ github.workspace }}
-      - run: cp env.ini.tests env.ini
-      - run: pip install --upgrade -r requirements.txt
-      - run: pip freeze
-      - run: pwd
-      - run: lsb_release -a
-      - run: |
-          sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-          sudo apt-get update
-          sudo apt-get -y install postgresql-${{ matrix.postgresql-version }}
-          sudo sed -i 's/local   all             postgres                                peer/local   all             postgres                                trust/' /etc/postgresql/${{ matrix.postgresql-version }}/main/pg_hba.conf
-          sudo sed -i 's|host    all             all             127.0.0.1/32            md5|host    all             all             127.0.0.1/32            trust|' /etc/postgresql/${{ matrix.postgresql-version }}/main/pg_hba.conf
-          ! docker stop $(docker ps -q --filter ancestor=postgres)
-          sudo sed -i 's/port = 5433/port = 5432/' /etc/postgresql/${{ matrix.postgresql-version }}/main/postgresql.conf
-          sudo service postgresql start
-        if: ${{ matrix.postgresql-version != 'latest' }}
-      - run: psql --version
-      - run: |
-          psql -c 'create user pguser;' -U postgres
-          psql -c 'alter user pguser createdb; ' -U postgres
-          psql -c "select version();" -U postgres
-        env:
-          PGHOST: 127.0.0.1
-      - run: python --version
-      - run: ./run_all_tests_with_deprecation_warnings.sh
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+      - run: apt list --installed | grep postgresql
+      - run: pg_lsclusters
