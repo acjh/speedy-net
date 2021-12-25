@@ -15,6 +15,13 @@ jobs:
             postgresql-version: 'latest'
     steps:
       - run: apt list --installed | grep postgresql
+      - run: sudo apt-get -y remove postgresql-14 postgresql-client-14
+      - run: |
+          sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+          sudo apt-get update
+          sudo apt-get -y install postgresql-${{ matrix.postgresql-version }}
+      - run: grep 'port =' /etc/postgresql/${{ matrix.postgresql-version }}/main/postgresql.conf
       - run: docker ps
       - run: pg_lsclusters
       - run: sudo service --status-all
