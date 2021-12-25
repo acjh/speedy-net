@@ -26,12 +26,10 @@ jobs:
         ports:
           - 5432:5432
     steps:
-      - run: |
-          docker ps
-          pg_lsclusters
-          sudo service postgresql status
-          sudo service postgresql stop
-          sudo service postgresql status
-          pg_lsclusters
-          docker ps
-        if: ${{ matrix.postgresql-version != 'latest' }}
+      - run: docker ps
+      - run: pg_lsclusters
+      - run: sudo service postgresql status
+      - run: sudo service postgresql stop
+      - run: sudo service postgresql status
+      - run: pg_lsclusters
+      - run: docker ps
