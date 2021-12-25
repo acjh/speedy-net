@@ -7,7 +7,6 @@ jobs:
       fail-fast: false
       matrix:
         os: ['ubuntu-18.04', 'ubuntu-latest']
-        python-version: ['3.8', '3.9', '3.10']
         postgresql-version: ['13', 'latest']
         is-master-or-staging:
           - ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/staging' }}
@@ -31,25 +30,6 @@ jobs:
         ports:
           - 5432:5432
     steps:
-      - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - name: Check out repository code
-        uses: actions/checkout@v2
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: List files in the repository
-        run: |
-          ls ${{ github.workspace }}
-      - run: cp env.ini.tests env.ini
-      - run: pip install --upgrade -r requirements.txt -r tests-requirements.txt
-      - run: pip freeze
-      - run: pwd
-      - run: lsb_release -a
       - run: |
           sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
           wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
@@ -65,14 +45,3 @@ jobs:
           sudo sed -i 's/port = 5433/port = 5432/' /etc/postgresql/${{ matrix.postgresql-version }}/main/postgresql.conf
           sudo service postgresql start
         if: ${{ matrix.postgresql-version != 'latest' }}
-      - run: apt list --installed | grep postgresql
-      - run: psql --version
-      - run: |
-          psql -c 'create user pguser;' -U postgres
-          psql -c 'alter user pguser createdb; ' -U postgres
-          psql -c "select version();" -U postgres
-        env:
-          PGHOST: 127.0.0.1
-      - run: python --version
-      - run: ./run_all_tests_with_deprecation_warnings.sh
-      - run: echo "🍏 This job's status is ${{ job.status }}."
