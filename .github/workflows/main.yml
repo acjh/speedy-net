@@ -14,6 +14,7 @@ jobs:
           - os: 'ubuntu-18.04'
             postgresql-version: 'latest'
     steps:
+      - run: apt list --installed | grep postgresql
       - run: docker ps
       - run: pg_lsclusters
       - run: sudo service --status-all
