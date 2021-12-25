@@ -28,8 +28,4 @@ jobs:
     steps:
       - run: docker ps
       - run: pg_lsclusters
-      - run: sudo service postgresql status
-      - run: sudo service postgresql stop
-      - run: sudo service postgresql status
-      - run: pg_lsclusters
-      - run: docker ps
+      - run: sudo service --status-all
