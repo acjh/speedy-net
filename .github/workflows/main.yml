@@ -13,6 +13,18 @@ jobs:
         exclude:
           - os: 'ubuntu-18.04'
             postgresql-version: 'latest'
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     steps:
       - run: apt list --installed | grep postgresql
       - run: |
