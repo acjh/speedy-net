@@ -35,6 +35,7 @@ if (django_settings.TESTS):
             username = factory.LazyAttribute(lambda o: normalize_username(username=o.slug))
             password = factory.fuzzy.FuzzyText(chars=string.ascii_lowercase)
             _password = factory.PostGenerationMethodCall(method_name='set_password', raw_password=tests_settings.USER_PASSWORD)
+            _save = factory.PostGenerationMethodCall(method_name='save')
 
             class Meta:
                 model = User
