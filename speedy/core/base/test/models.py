@@ -44,7 +44,7 @@ if (django_settings.TESTS):
             assert (django_settings.TESTS is True)
             super().__init__(*args, **kwargs)
             self.test_languages = kwargs.get('test_languages', None)
-            self.test_only = kwargs.get('test_only', None)
+            self.test_only = kwargs.get('test_only', None) or 10
             self.count_tests = kwargs.get('count_tests', None)
             assert (self.test_languages in {'test-all-languages', 'test-default-languages', 'en', 'fr', 'de', 'es', 'pt', 'it', 'nl', 'sv', 'ko', 'fi', 'he'})
             if (self.test_only is not None):
